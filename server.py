@@ -30,6 +30,10 @@ def add(name):
     user.insert({'name': name})
     return name + ' added'
 
+@app.route('/',methods=['GET'])
+def add(name):
+    return "123"
+
 @app.route('/get/<name>', methods=['GET'])
 def get(name):
     user = mongo.db.users
