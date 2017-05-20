@@ -92,26 +92,26 @@ def opration(uid,action):
 def getData(uid):
     #check if user exist
     try:
+        new = 0
         user = mongo.db.users
         u = user.find_one({"_id":ObjectId(uid)})
         if u is None:
             new = 1
-            user.insert({"_id": ObjectId(uid)})
-            return uid + ' added'
-        new = 0
         print u
         return 'founded'
     except:
         return "error"
     if new:
+        user.insert({"_id": ObjectId(uid)})
+        return 'top 10 articles from home page'
         #write user to db + top 10 articles from home page
         return
     else:
+        return 'top 5 articles + 5 from algo algo'
         #we return the top 5 articles + algo(the last article who this user visit)
         #change in the db his new's articles
         return
     return
-
 
 
 
