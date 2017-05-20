@@ -31,7 +31,7 @@ def add(name):
     return name + ' added'
 
 @app.route('/',methods=['GET'])
-def add():
+def index():
     return "123"
 
 @app.route('/get/<name>', methods=['GET'])
