@@ -17,12 +17,19 @@ app.config['MONGO_URI'] = 'mongodb://gal:12345@ds153715.mlab.com:53715/users'
 mongo = PyMongo(app)
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
+def articleIsRated(uid,aid):
+     u = mongo.db.users.find_one({"_id": ObjectId(uid)})
+     if u is not None:
+         # print u[items]
+
+
 def updateActionById(uid,action,aid):
-    mongo.db.users.update_one({"_id": ObjectId(uid)},
-                              {
-                                  '$add': {'items':aid},
-                                  '$add': {'rating':action}
-                              }, upsert=False, )
+    if action > articleIsRated(uid,aid):
+        mongo.db.users.update_one({"_id": ObjectId(uid)},
+                                  {
+                                      '$add': {'items': aid},
+                                      '$add': {'rating': action}
+                                  }, upsert=False, )
 
 @app.route('/add/<name>',methods=['GET'])
 def add(name):
@@ -61,16 +68,6 @@ def opration(uid,action):
     try:
         user = mongo.db.users
         u = user.find_one({"_id":ObjectId(uid)})
-        new = 0
-        if u is None:
-            new = 1
-            user.insert({"_id": ObjectId(uid),
-                        'items':[],
-                        'rating':[]
-                         })
-            return uid + ' added'
-        print u
-        return 'founded'
     except:
         return "error"
     if new:
