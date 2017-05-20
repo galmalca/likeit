@@ -4,6 +4,8 @@ from flask_pymongo import PyMongo
 from CBsystem import cbFiltering
 import os
 import json
+PORT = 3002
+HOST = "192.168.232.131"
 
 
 app = Flask(__name__)
@@ -110,4 +112,4 @@ def getData(uid):
 
 
 if __name__=='__main__':
-    app.run(debug=True,host='10.10.248.57',port='3001')
+    app.run(debug=True,port=PORT,host=HOST)
