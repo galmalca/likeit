@@ -97,13 +97,11 @@ def getData(uid):
         u = user.find_one({"_id":ObjectId(uid)})
         if u is None:
             new = 1
-        print u
-        return 'founded'
     except:
         return "error"
     if new:
         user.insert({"_id": ObjectId(uid)})
-        return 'top 10 articles from home page'
+        return 'new user + top 10 articles from home page'
         #write user to db + top 10 articles from home page
         return
     else:
