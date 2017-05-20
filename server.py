@@ -5,7 +5,7 @@ from CBsystem import cbFiltering
 import os
 import json
 PORT = 3002
-HOST = "192.168.232.131"
+HOST = "193.106.55.57"
 
 
 app = Flask(__name__)
