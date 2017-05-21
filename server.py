@@ -16,50 +16,57 @@ app.config['MONGO_URI'] = 'mongodb://gal:12345@ds153715.mlab.com:53715/users'
 
 
 mongo = PyMongo(app)
-mf = MatrixFactorization
-cb = CbFiltering
+mf = MatrixFactorization.MatrixFactorization
+cb = CbFiltering.CbFiltering
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-def articleIsRated(uid,aid):
-     u = mongo.db.users.find_one({"_id": ObjectId(uid)})
-     if u is not None:
-         return 123
-         # print u[items]
-
-
-def updateActionById(uid,action,aid):
-    if action > articleIsRated(uid,aid):
+def raplaceRating(uid,aid,action):
+    u = mongo.db.users.find_one({"_id": ObjectId(uid)})
+    if u is not None:
+        i=0
+        for item in u['items']:
+            if item == aid:
+                u['rating'][i]=action
+            i += 1
         mongo.db.users.update_one({"_id": ObjectId(uid)},
                                   {
-                                      '$add': {'items': aid},
-                                      '$add': {'rating': action}
+                                      '$set': {'rating': u['rating']},
                                   }, upsert=False, )
 
-@app.route('/add/<name>',methods=['GET'])
-def add(name):
-    user = mongo.db.users
-    user.insert({'name': name})
-    return name + ' added'
+def articleIsRated(uid, aid):
+    u = mongo.db.users.find_one({"_id": ObjectId(uid)})
+    if u is not None:
+        i = 0
+        for item in u['items']:
+            if item == aid:
+                return u['rating'][i]
+            i += 1
+        return -1
+
+def insertItemAndRating(uid,aid,action):
+    u = mongo.db.users.find_one({"_id": ObjectId(uid)})
+    if u is not None:
+        mongo.db.users.update_one({"_id": ObjectId(uid)},
+                                {
+                                  '$push': {'items': aid,
+                                            'rating': action},
+                                }, upsert=False, )
+    return u
+
+def updateActionById(uid, aid, action):
+    rating = articleIsRated(uid, aid)
+    if action > rating:
+        if rating is -1:
+            insertItemAndRating(uid, aid, action)
+            return "insertItemAndRating"
+        else:
+            raplaceRating(uid, aid, action)
+            return "raplaceRating"
+    return "not updated"
 
 @app.route('/',methods=['GET'])
 def index():
     return "123"
-
-@app.route('/get/<name>', methods=['GET'])
-def get(name):
-    user = mongo.db.users
-    u = user.find_one({'name':name})
-    print u
-    return str(u)
-
-@app.route('/update/<id>/<name>',methods=['GET'])
-def update(id,name):
-    mongo.db.users.update_one({"_id":ObjectId(id)},
-                        {
-                            '$set':{'name':name}
-                        }, upsert=False,)
-    return 'updated'
-
 
 @app.route('/task',methods=['GET'])
 def task():
@@ -68,26 +75,14 @@ def task():
 
 
 @app.route('/opration/<uid>/<aid>/<action>',methods=['GET'])
-def opration(uid,action):
+def opration(uid, aid, action):
     try:
         user = mongo.db.users
         u = user.find_one({"_id":ObjectId(uid)})
     except:
         return "error"
     if u is not None:
-        return #data for new mikre kaze
-    if action == 0:
-        return
-    if action == 1:
-        return
-    if action == 2:
-        return
-    if action == 3:
-        return
-    if action == 4:
-        return
-    if action == 5:
-        return
+        updateActionById(uid, aid, action)
 
 @app.route('/getData/<uid>',methods=['GET'])
 def getData(uid):
