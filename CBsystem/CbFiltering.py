@@ -41,3 +41,4 @@ class CbFiltering:
 
         with open(filePath, 'w') as outfile:
             json.dump(data, outfile)
+

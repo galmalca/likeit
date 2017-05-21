@@ -2,6 +2,7 @@ from bson import ObjectId
 from flask import Flask
 from flask_pymongo import PyMongo
 from CBsystem import CbFiltering
+from MF import MatrixFactorization
 import os
 import json
 PORT = 3002
@@ -15,11 +16,14 @@ app.config['MONGO_URI'] = 'mongodb://gal:12345@ds153715.mlab.com:53715/users'
 
 
 mongo = PyMongo(app)
+mf = MatrixFactorization
+cb = CbFiltering
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 def articleIsRated(uid,aid):
      u = mongo.db.users.find_one({"_id": ObjectId(uid)})
      if u is not None:
+         return 123
          # print u[items]
 
 
@@ -59,8 +63,8 @@ def update(id,name):
 
 @app.route('/task',methods=['GET'])
 def task():
-    df = CbFiltering.openFile(dir_path + '/CBsystem/data/40k_movies_data.json')
-    return json.dumps(CbFiltering.algo(df[500], df))
+    df = cb.openFile(dir_path + '/CBsystem/data/40k_movies_data.json')
+    return json.dumps(cb.algo(df[500], df))
 
 
 @app.route('/opration/<uid>/<aid>/<action>',methods=['GET'])
@@ -70,7 +74,7 @@ def opration(uid,action):
         u = user.find_one({"_id":ObjectId(uid)})
     except:
         return "error"
-    if new:
+    if u is not None:
         return #data for new mikre kaze
     if action == 0:
         return
