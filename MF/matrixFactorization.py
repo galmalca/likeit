@@ -7,7 +7,7 @@ class MatrixFactorization:
 
     data = None
 
-    def loadFileToData(filepath):
+    def loadFileToData(filepath,self):
         with open(filepath) as data_file:
             movies_df = json.load(data_file)
         #check number of movies
@@ -19,7 +19,7 @@ class MatrixFactorization:
         MatrixFactorization.data = np.zeros((len(movies_df), len(dict)))
         for movie in movies_df:
             for j in range(len(movie['movie_id'])):
-                MatrixFactorization.data[movie['user_id'],movie['movie_id'][j]-1]=movie['rating'][j]
+                self.data[movie['user_id'],movie['movie_id'][j]-1]=movie['rating'][j]
 
 
 
@@ -66,3 +66,28 @@ class MatrixFactorization:
 
         print(nR.shape)
         print(nR)
+
+    #'user_features.dat''product_features.dat''predicted_ratings.dat'
+    def livePrediction(self, pathToUersFeatures, pathToProductFeatures, pathToPredictedRatings, user_id):
+        with open(pathToUersFeatures, 'rb') as f:
+            U = pickle.load(f, encoding='latin1')
+        with open(pathToProductFeatures, 'rb') as f:
+            M = pickle.load(f, encoding='latin1')
+        with open(pathToPredictedRatings, 'rb') as f:
+            predicted_ratings = pickle.load(f, encoding='latin1')
+        with open('movies.json') as data_file:
+            movies_df = json.load(data_file)
+
+        from operator import itemgetter
+        user_id_to_search = user_id
+        print("Movies we will recommend:")
+        user_ratings = predicted_ratings[user_id_to_search - 1]
+        i = 0
+        for movie in movies_df:
+            movie['rating'] = user_ratings[i]
+            i += 1
+        # movies_df = movies_df.sort(key=['rating'])
+        sortedList = sorted(movies_df, key=itemgetter('rating'), reverse=True)
+        # movies_df = movies_df(by=['rating'], ascending=False)
+
+        print(sortedList[0:5])
