@@ -1,7 +1,7 @@
 from bson import ObjectId
 from flask import Flask
 from flask_pymongo import PyMongo
-from CBsystem import cbFiltering
+from CBsystem import CbFiltering
 import os
 import json
 PORT = 3002
@@ -59,8 +59,8 @@ def update(id,name):
 
 @app.route('/task',methods=['GET'])
 def task():
-    df = cbFiltering.openFile(dir_path + '/CBsystem/data/40k_movies_data.json')
-    return json.dumps(cbFiltering.algo(df[500], df))
+    df = CbFiltering.openFile(dir_path + '/CBsystem/data/40k_movies_data.json')
+    return json.dumps(CbFiltering.algo(df[500], df))
 
 
 @app.route('/opration/<uid>/<aid>/<action>',methods=['GET'])
