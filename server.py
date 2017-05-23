@@ -64,15 +64,6 @@ def updateActionById(uid, aid, action):
             return "raplaceRating"
     return "not updated"
 
-@app.route('/add/<name>',methods=['POST'])
-def add(name):
-    user = mongo.db.users
-    user.insert({'name': name,
-                 'movie_id': {24,14,9,2,30,10,17,5},
-                 'rating': {5,5,1,3,5,3,4,2}
-                 })
-    return name + ' added'
-
 @app.route('/',methods=['GET'])
 def index():
     return "123"
