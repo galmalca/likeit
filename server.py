@@ -38,11 +38,14 @@ def articleIsRated(uid, aid):
     u = mongo.db.users.find_one({"_id": ObjectId(uid)})
     if u is not None:
         i = 0
-        for item in u['items']:
-            if item == aid:
-                return u['rating'][i]
-            i += 1
-        return -1
+        try:
+            for item in u['items']:
+                if item == aid:
+                    return u['rating'][i]
+                i += 1
+            return -1
+        except:
+            return -1
 
 def insertItemAndRating(uid,aid,action):
     u = mongo.db.users.find_one({"_id": ObjectId(uid)})
@@ -65,6 +68,22 @@ def updateActionById(uid, aid, action):
             return "raplaceRating"
     return "not updated"
 
+def numberOfOprations(uid):# 1 for young user(oprations < 10) and 0 for old user
+    u = mongo.db.users.find_one({"_id": ObjectId(uid)})
+    try:
+        if u['oprationNumber'] < 10:
+            return 1
+        else:
+            return 0
+    except:
+        return 0
+
+def updateNumberOfOprations(uid):
+    mongo.db.users.update_one({"_id": ObjectId(uid)},
+                              {
+                                  '$inc': {'oprationNumber': 1},
+                              }, upsert=False, )
+
 @app.route('/',methods=['GET'])
 def index():
     return time.asctime( time.localtime(time.time()))
@@ -84,6 +103,8 @@ def opration(uid, aid, action):
         return "error"
     if u is not None:
         updateActionById(uid, aid, action)
+        updateNumberOfOprations(uid)
+        return 'done'
 
 @app.route('/getData/<uid>',methods=['GET'])
 def getData(uid):
@@ -97,16 +118,17 @@ def getData(uid):
     except:
         return "error"
     if new:
-        user.insert({"_id": ObjectId(uid)})
-        return 'new user + top 10 articles from home page'
-        #write user to db + top 10 articles from home page
-        return
-    else:
-        return 'top 5 articles + 5 from algo algo'
-        #we return the top 5 articles + algo(the last article who this user visit)
-        #change in the db his new's articles
-        return
-    return
+        if new:
+            user.insert({"_id": ObjectId(uid),
+                         "oprationNumber": 0})
+            return 'new user + top 10 articles from home page'
+            # write user to db + top 10 articles from home page
+        elif numberOfOprations(uid):
+            return 'top 5 articles + 5 from CB'
+            # we return the top 5 articles + algo(the last article who this user visit)
+            # change in the db his new's articles
+        else:
+            return 'MF'
 
 
 
