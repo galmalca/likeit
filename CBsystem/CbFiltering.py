@@ -5,29 +5,26 @@ class CbFiltering:
 
     def openFile(filePath):
         with open(filePath) as data_file:
-            movies_df = json.load(data_file)
-        # print(movies_df[600])
-        return (movies_df)
+            dataFrame = json.load(data_file)
+        return (dataFrame)
 
-
-    def algo(comparableItem, dataFrames):
+    def algo(comparableItem, dataFrame):
         list = []
         bestScore = 0
-        for movie in dataFrames:
-            if movie['movieId'] != comparableItem['movieId']:
+        for item in dataFrame:
+            if item['_id'] != comparableItem['_id']:
                 matchScore = 0
-                for j in range(len(comparableItem['genres'])):
-                    for i in range(len(movie['genres'])):
-                        if comparableItem['genres'][j] == movie['genres'][i]:
+                for j in range(len(comparableItem['categories'])):
+                    for i in range(len(item['categories'])):
+                        if comparableItem['categories'][j] == item['categories'][i]:
                             matchScore += 1
-                        if matchScore > bestScore:
-                            bestMatch = movie
-                            bestScore = matchScore
-                        if matchScore > 1 and len(movie['genres']) <= len(comparableItem['genres']) + 1:
-                            list.append(movie)
-                        #     list.append(bestMatch)
-                        #     return bestMatch
-        return list
+                    if matchScore >= bestScore:
+                        bestMatch = item
+                        bestScore = matchScore
+                    if matchScore > 1 and len(item['categories']) <= len(comparableItem['categories']) + 2:
+                        list.append(item)
+        list.reverse()
+        return list[0:10]
 
 
     def convert_file(filePath):
@@ -35,9 +32,9 @@ class CbFiltering:
             data = json.load(data_file)
 
         for item in data:
-            str = item['genres']
+            str = item['categories']
             wards = str.split(',')
-            item['genres'] = wards
+            item['categories'] = wards
 
         with open(filePath, 'w') as outfile:
             json.dump(data, outfile)
