@@ -67,7 +67,7 @@ def updateActionById(uid, aid, action):
 
 @app.route('/',methods=['GET'])
 def index():
-    return time.asctime( time.localtime(time.time()) )
+    return time.asctime( time.localtime(time.time()))
 
 @app.route('/task',methods=['GET'])
 def task():
