@@ -1,5 +1,5 @@
 from bson import ObjectId
-import datetime
+import time
 from flask import Flask
 from flask_pymongo import PyMongo
 from CBsystem import CbFiltering
@@ -67,7 +67,7 @@ def updateActionById(uid, aid, action):
 
 @app.route('/',methods=['GET'])
 def index():
-    return datetime.datetime.now()
+    return time.asctime( time.localtime(time.time()) )
 
 @app.route('/task',methods=['GET'])
 def task():
