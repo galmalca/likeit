@@ -24,7 +24,7 @@ class CbFiltering:
                     if matchScore > 1 and len(item['categories']) <= len(comparableItem['categories']) + 2:
                         list.append(item)
         list.reverse()
-        return list[0:10]
+        return list[0:5]
 
 
     def convert_file(filePath):
