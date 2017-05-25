@@ -1,41 +1,43 @@
 from bson import ObjectId
 import time
 from flask import Flask
-from flask_pymongo import PyMongo
+from pymongo import MongoClient
 from CBsystem import CbFiltering
 from MF import MatrixFactorization
 import os
 import json
+import threading
+TIMER = 20*60
 PORT = 3002
 HOST = "10.10.248.57"
 
 
 app = Flask(__name__)
 
-app.config['MONGO_DBNAME'] = 'users'
-app.config['MONGO_URI'] = 'mongodb://gal:12345@ds153715.mlab.com:53715/users'
+moranMongo = MongoClient('mongodb://galevgi:galgalgal@ds133981.mlab.com:33981/likeitarticle')
+localMongo = MongoClient('localhost', 27017)
+articlesList = None
 
 
-mongo = PyMongo(app)
 mf = MatrixFactorization.MatrixFactorization
 cb = CbFiltering.CbFiltering
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 def raplaceRating(uid,aid,action):
-    u = mongo.db.users.find_one({"_id": ObjectId(uid)})
+    u = localMongo.db.users.find_one({"_id": ObjectId(uid)})
     if u is not None:
         i=0
         for item in u['items']:
             if item == aid:
                 u['rating'][i]=action
             i += 1
-        mongo.db.users.update_one({"_id": ObjectId(uid)},
+            localMongo.db.users.update_one({"_id": ObjectId(uid)},
                                   {
                                       '$set': {'rating': u['rating']},
                                   }, upsert=False, )
 
 def articleIsRated(uid, aid):
-    u = mongo.db.users.find_one({"_id": ObjectId(uid)})
+    u = localMongo.db.users.find_one({"_id": ObjectId(uid)})
     if u is not None:
         i = 0
         try:
@@ -48,9 +50,9 @@ def articleIsRated(uid, aid):
             return -1
 
 def insertItemAndRating(uid,aid,action):
-    u = mongo.db.users.find_one({"_id": ObjectId(uid)})
+    u = localMongo.db.users.find_one({"_id": ObjectId(uid)})
     if u is not None:
-        mongo.db.users.update_one({"_id": ObjectId(uid)},
+        localMongo.db.users.update_one({"_id": ObjectId(uid)},
                                 {
                                   '$push': {'items': aid,
                                             'rating': action},
@@ -69,7 +71,7 @@ def updateActionById(uid, aid, action):
     return "not updated"
 
 def numberOfOprations(uid):# 1 for young user(oprations < 10) and 0 for old user
-    u = mongo.db.users.find_one({"_id": ObjectId(uid)})
+    u = localMongo.db.users.find_one({"_id": ObjectId(uid)})
     try:
         if u['oprationNumber'] < 10:
             return 1
@@ -79,10 +81,20 @@ def numberOfOprations(uid):# 1 for young user(oprations < 10) and 0 for old user
         return 0
 
 def updateNumberOfOprations(uid):
-    mongo.db.users.update_one({"_id": ObjectId(uid)},
+    localMongo.db.users.update_one({"_id": ObjectId(uid)},
                               {
                                   '$inc': {'oprationNumber': 1},
                               }, upsert=False, )
+
+def getAllArticles():
+    user = moranMongo.likeitarticle.articles_db
+    articles = list(user.find())
+    return articles
+
+def schedule():
+    global articlesList
+    articlesList = getAllArticles()
+    threading.Timer(TIMER, schedule).start()
 
 @app.route('/',methods=['GET'])
 def index():
@@ -93,11 +105,10 @@ def task():
     df = cb.openFile(dir_path + '/CBsystem/data/40k_movies_data.json')
     return json.dumps(cb.algo(df[500], df))
 
-
 @app.route('/opration/<uid>/<aid>/<action>',methods=['GET'])
 def opration(uid, aid, action):
     try:
-        user = mongo.db.users
+        user = localMongo.db.users
         u = user.find_one({"_id":ObjectId(uid)})
     except:
         return "error"
@@ -111,7 +122,7 @@ def getData(uid):
     #check if user exist
     try:
         new = 0
-        user = mongo.db.users
+        user = localMongo.db.users
         u = user.find_one({"_id":ObjectId(uid)})
         if u is None:
             new = 1
@@ -131,6 +142,6 @@ def getData(uid):
             return 'MF'
 
 
-
 if __name__=='__main__':
+    schedule()
     app.run(debug=True,port=PORT,host=HOST)
