@@ -8,17 +8,17 @@ class MatrixFactorization:
 
     def loadFileToData(filepath,self):
         with open(filepath) as data_file:
-            movies_df = json.load(data_file)
+            articles = json.load(data_file)
         #check number of movies
         dict = {}
-        for movie in movies_df:
-            for i in range(len(movie['movie_id'])):
-                if dict.get(movie['movie_id'][i])==None:
-                    dict[movie['movie_id'][i]]=1
-        MatrixFactorization.data = np.zeros((len(movies_df), len(dict)))
-        for movie in movies_df:
-            for j in range(len(movie['movie_id'])):
-                self.data[movie['user_id'],movie['movie_id'][j]-1]=movie['rating'][j]
+        for item in articles:
+            for i in range(len(item['movie_id'])):
+                if dict.get(item['movie_id'][i])==None:
+                    dict[item['movie_id'][i]]=1
+        MatrixFactorization.data = np.zeros((len(articles), len(dict)))
+        for item in articles:
+            for j in range(len(item['movie_id'])):
+                self.data[item['user_id'],item['movie_id'][j]-1]=item['rating'][j]
 
 
 

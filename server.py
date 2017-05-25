@@ -7,6 +7,7 @@ from MF import MatrixFactorization as mf
 import os
 import json
 import threading
+import requests
 TIMER = 20*60
 PORT = 3002
 HOST = "10.10.248.57"
@@ -140,7 +141,6 @@ def opration(uid, aid, action):
 
 @app.route('/getData/<uid>',methods=['GET'])
 def getData(uid):
-    #check if user exist
     try:
         new = 0
         user = localMongo.db.users
@@ -153,15 +153,15 @@ def getData(uid):
         if new:
             user.insert({"_id": ObjectId(uid),
                          "oprationNumber": 0})
-            return 'new user + top 10 articles from home page'
-            # write user to db + top 10 articles from home page
+            req = requests.get('http://127.0.0.1:5003/getFiveArticles')
+            return json.dumps(req.json())
         elif numberOfOprations(uid):
             fav = getFavoriteArticle()
             article = getSpecificArticle(fav)
             results = cb.CbFiltering.algo(article, articlesList)
-            return 'top 5 articles + 5 from CB' + results
-            # we return the top 5 articles + algo(the last article who this user visit)
-            # change in the db his new's articles
+            req = requests.get('http://127.0.0.1:5003/getFiveArticles')
+            results.extend(req.json())
+            return json.dumps(results)
         else:
             return 'MF'
 
