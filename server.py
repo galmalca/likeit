@@ -2,14 +2,15 @@ from bson import ObjectId
 import time
 from flask import Flask
 from pymongo import MongoClient
-from CBsystem import CbFiltering
-from MF import MatrixFactorization
+from CBsystem import CbFiltering as cb
+from MF import MatrixFactorization as mf
 import os
 import json
 import threading
 TIMER = 20*60
 PORT = 3002
 HOST = "10.10.248.57"
+
 
 
 app = Flask(__name__)
@@ -19,8 +20,7 @@ localMongo = MongoClient('localhost', 27017)
 articlesList = None
 
 
-mf = MatrixFactorization.MatrixFactorization
-cb = CbFiltering.CbFiltering
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 def raplaceRating(uid,aid,action):
@@ -96,14 +96,35 @@ def schedule():
     articlesList = getAllArticles()
     threading.Timer(TIMER, schedule).start()
 
+def getFavoriteArticle(uid):
+    u = localMongo.db.users.find_one({"_id": ObjectId(uid)})
+    key = None
+    try:
+        maxRating = max(u['rating'])
+        i=0
+        for rating in u['rating']:
+            if rating==maxRating:
+                key = u['items'][i]
+            i+=1
+        return key
+    except:
+        return "None"
+
+def getSpecificArticle(aid):
+    for i in range(len(articlesList)):
+        if articlesList[i]["_id"] == ObjectId(aid):
+            return str(i)
+    return None
+
 @app.route('/',methods=['GET'])
 def index():
     return time.asctime( time.localtime(time.time()))
 
 @app.route('/task',methods=['GET'])
 def task():
-    df = cb.openFile(dir_path + '/CBsystem/data/40k_movies_data.json')
-    return json.dumps(cb.algo(df[500], df))
+    # df = cb.openFile(dir_path + '/CBsystem/data/40k_movies_data.json')
+    df = articlesList
+    return str(cb.CbFiltering.algo(df[4], df))
 
 @app.route('/opration/<uid>/<aid>/<action>',methods=['GET'])
 def opration(uid, aid, action):
@@ -135,13 +156,15 @@ def getData(uid):
             return 'new user + top 10 articles from home page'
             # write user to db + top 10 articles from home page
         elif numberOfOprations(uid):
-            return 'top 5 articles + 5 from CB'
+            fav = getFavoriteArticle()
+            article = getSpecificArticle(fav)
+            results = cb.CbFiltering.algo(article, articlesList)
+            return 'top 5 articles + 5 from CB' + results
             # we return the top 5 articles + algo(the last article who this user visit)
             # change in the db his new's articles
         else:
             return 'MF'
 
-
 if __name__=='__main__':
     schedule()
-    app.run(debug=True,port=PORT,host=HOST)
+    app.run(debug=True,host=HOST,port=PORT)
