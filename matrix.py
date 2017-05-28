@@ -12,6 +12,7 @@ localMongo = MongoClient('mongodb://gal:12345@ds153715.mlab.com:53715/users')
 def schedule():
     user = localMongo.users.users
     articles = list(user.find())
+    print articles
     mf.MatrixFactorization.loadFileToData(articles)
     mf.MatrixFactorization.makeMatrix()
     threading.Timer(TIMER, schedule).start()
