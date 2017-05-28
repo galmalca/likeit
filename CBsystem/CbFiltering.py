@@ -1,7 +1,9 @@
 import json
 
-class CbFiltering:
 
+class CbFiltering:
+    def __init__(self):
+        pass
 
     def openFile(filePath):
         with open(filePath) as data_file:
@@ -24,8 +26,7 @@ class CbFiltering:
                     if matchScore > 1 and len(item['categories']) <= len(comparableItem['categories']) + 2:
                         list.append(item)
         list.reverse()
-        return list[0:5]
-
+        return list[:10]
 
     def convert_file(filePath):
         with open(filePath) as data_file:
@@ -38,4 +39,3 @@ class CbFiltering:
 
         with open(filePath, 'w') as outfile:
             json.dump(data, outfile)
-

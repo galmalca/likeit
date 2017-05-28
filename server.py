@@ -8,11 +8,11 @@ import os
 import json
 import threading
 import requests
-TIMER = 20*60
+
+TIMER = 20 * 60
 PORT = 3002
 HOST = "10.10.248.57"
-
-
+predictedPath = "predicted_ratings.dat"
 
 app = Flask(__name__)
 
@@ -20,22 +20,22 @@ moranMongo = MongoClient('mongodb://galevgi:galgalgal@ds133981.mlab.com:33981/li
 localMongo = MongoClient('localhost', 27017)
 articlesList = None
 
-
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-def raplaceRating(uid,aid,action):
+
+def raplaceRating(uid, aid, action):
     u = localMongo.db.users.find_one({"_id": ObjectId(uid)})
     if u is not None:
-        i=0
+        i = 0
         for item in u['items']:
             if item == aid:
-                u['rating'][i]=action
+                u['rating'][i] = action
             i += 1
             localMongo.db.users.update_one({"_id": ObjectId(uid)},
-                                  {
-                                      '$set': {'rating': u['rating']},
-                                  }, upsert=False, )
+                                           {
+                                               '$set': {'rating': u['rating']},
+                                           }, upsert=False, )
+
 
 def articleIsRated(uid, aid):
     u = localMongo.db.users.find_one({"_id": ObjectId(uid)})
@@ -50,15 +50,17 @@ def articleIsRated(uid, aid):
         except:
             return -1
 
-def insertItemAndRating(uid,aid,action):
+
+def insertItemAndRating(uid, aid, action):
     u = localMongo.db.users.find_one({"_id": ObjectId(uid)})
     if u is not None:
         localMongo.db.users.update_one({"_id": ObjectId(uid)},
-                                {
-                                  '$push': {'items': aid,
-                                            'rating': action},
-                                }, upsert=False, )
+                                       {
+                                           '$push': {'items': aid,
+                                                     'rating': action},
+                                       }, upsert=False, )
     return u
+
 
 def updateActionById(uid, aid, action):
     rating = articleIsRated(uid, aid)
@@ -71,7 +73,8 @@ def updateActionById(uid, aid, action):
             return "raplaceRating"
     return "not updated"
 
-def numberOfOprations(uid):# 1 for young user(oprations < 10) and 0 for old user
+
+def numberOfOprations(uid):  # 1 for young user(oprations < 10) and 0 for old user
     u = localMongo.db.users.find_one({"_id": ObjectId(uid)})
     try:
         if u['oprationNumber'] < 10:
@@ -81,35 +84,40 @@ def numberOfOprations(uid):# 1 for young user(oprations < 10) and 0 for old user
     except:
         return 0
 
+
 def updateNumberOfOprations(uid):
     localMongo.db.users.update_one({"_id": ObjectId(uid)},
-                              {
-                                  '$inc': {'oprationNumber': 1},
-                              }, upsert=False, )
+                                   {
+                                       '$inc': {'oprationNumber': 1},
+                                   }, upsert=False, )
+
 
 def getAllArticles():
     user = moranMongo.likeitarticle.articles_db
     articles = list(user.find())
     return articles
 
+
 def schedule():
     global articlesList
     articlesList = getAllArticles()
     threading.Timer(TIMER, schedule).start()
+
 
 def getFavoriteArticle(uid):
     u = localMongo.db.users.find_one({"_id": ObjectId(uid)})
     key = None
     try:
         maxRating = max(u['rating'])
-        i=0
+        i = 0
         for rating in u['rating']:
-            if rating==maxRating:
+            if rating == maxRating:
                 key = u['items'][i]
-            i+=1
+            i += 1
         return key
     except:
         return "None"
+
 
 def getSpecificArticle(aid):
     for i in range(len(articlesList)):
@@ -117,21 +125,24 @@ def getSpecificArticle(aid):
             return str(i)
     return None
 
-@app.route('/',methods=['GET'])
-def index():
-    return time.asctime( time.localtime(time.time()))
 
-@app.route('/task',methods=['GET'])
+@app.route('/', methods=['GET'])
+def index():
+    return time.asctime(time.localtime(time.time()))
+
+
+@app.route('/task', methods=['GET'])
 def task():
     # df = cb.openFile(dir_path + '/CBsystem/data/40k_movies_data.json')
     df = articlesList
     return str(cb.CbFiltering.algo(df[4], df))
 
-@app.route('/opration/<uid>/<aid>/<action>',methods=['GET'])
+
+@app.route('/opration/<uid>/<aid>/<action>', methods=['GET'])
 def opration(uid, aid, action):
     try:
         user = localMongo.db.users
-        u = user.find_one({"_id":ObjectId(uid)})
+        u = user.find_one({"_id": ObjectId(uid)})
     except:
         return "error"
     if u is not None:
@@ -139,12 +150,13 @@ def opration(uid, aid, action):
         updateNumberOfOprations(uid)
         return 'done'
 
-@app.route('/getData/<uid>',methods=['GET'])
+
+@app.route('/getData/<uid>', methods=['GET'])
 def getData(uid):
     try:
         new = 0
         user = localMongo.db.users
-        u = user.find_one({"_id":ObjectId(uid)})
+        u = user.find_one({"_id": ObjectId(uid)})
         if u is None:
             new = 1
     except:
@@ -163,8 +175,10 @@ def getData(uid):
             results.extend(req.json())
             return json.dumps(results)
         else:
-            return 'MF'
+            predict = mf.MatrixFactorization.livePrediction(predictedPath, articlesList, uid)
+            return predict
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     schedule()
-    app.run(debug=True,port=PORT)
+    app.run(debug=True, port=PORT)
