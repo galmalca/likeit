@@ -17,7 +17,7 @@ predictedPath = "predicted_ratings.dat"
 app = Flask(__name__)
 
 moranMongo = MongoClient('mongodb://galevgi:galgalgal@ds133981.mlab.com:33981/likeitarticle')
-localMongo = MongoClient('localhost', 27017)
+localMongo = MongoClient('mongodb://gal:12345@ds153715.mlab.com:53715/users')
 articlesList = None
 
 dir_path = os.path.dirname(os.path.realpath(__file__))

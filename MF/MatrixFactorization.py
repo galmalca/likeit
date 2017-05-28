@@ -15,20 +15,24 @@ class MatrixFactorization:
         cls.articles = inputData
         # check number of movies
         dict = {}
+        k = 0
         for item in cls.articles:
-            for i in range(len(item['movie_id'])):
-                if dict.get(item['movie_id'][i]) is None:
-                    dict[item['movie_id'][i]] = 1
+            for i in range(len(item['items'])):
+                if dict.get(item['items'][i]) is None:
+                    dict[item['items'][i]] = k
+                    k += 1
 
                 cls.data = np.zeros((len(cls.articles), len(dict)))
 
         cls.data
+        i = 0
         for item in cls.articles:
-            for j in range(len(item['movie_id'])):
-                cls.data[item['movie_id'], item['movie_id'][j] - 1] = item['rating'][j]
+            for j in range(len(item['items'])):
+                cls.data[i, dict[item['items'][j]]] = item['rating'][j]
+            i += 1
 
     @classmethod
-    def algo(cls, R, P, Q, K, steps=5000, alpha=0.0002, beta=0.02):
+    def algo(cls, R, P, Q, K, steps=10, alpha=0.0002, beta=0.02):
         Q = Q.T
         for step in range(steps):
             for i in range(len(R)):
@@ -68,7 +72,7 @@ class MatrixFactorization:
         pickle.dump(P, open("user_features.dat", "wb"))
         pickle.dump(Q, open("product_features.dat", "wb"))
         pickle.dump(nR, open("predicted_ratings.dat", "wb"))
-
+        #
         # print(nR.shape)
         # print(nR)
 
