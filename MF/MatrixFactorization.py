@@ -27,7 +27,6 @@ class MatrixFactorization:
 
         cls.data
         i = 0
-        print dict
         for item in cls.users:
             for j in range(len(item['items'])):
                 cls.data[i, dict[item['items'][j]]] = item['rating'][j]
@@ -97,7 +96,6 @@ class MatrixFactorization:
         for j in range(len(cls.users)):
             if cls.users[j]["_id"] == user_id:
                 break
-        print cls.users
         user_ratings = predicted_ratings[j] #the vector of the specific user in the predicted matrix
         i = 0
         for item in articlesMatrix:
@@ -105,4 +103,4 @@ class MatrixFactorization:
             i += 1
         sortedList = sorted(articlesMatrix, key=itemgetter('rating'), reverse=True)
 
-        print(sortedList[:30])
+        return sortedList[:20]
