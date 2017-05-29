@@ -18,27 +18,28 @@ app = Flask(__name__)
 
 moranMongo = MongoClient('mongodb://galevgi:galgalgal@ds133981.mlab.com:33981/likeitarticle')
 localMongo = MongoClient('mongodb://project57:likeit1234@127.0.0.1:27017')
+db = localMongo.DB57
 articlesList = None
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 
 def raplaceRating(uid, aid, action):
-    u = localMongo.DB57.users.find_one({"_id": ObjectId(uid)})
+    u = localMongo.db.users.find_one({"_id": ObjectId(uid)})
     if u is not None:
         i = 0
         for item in u['items']:
             if item == aid:
                 u['rating'][i] = action
             i += 1
-            localMongo.DB57.users.update_one({"_id": ObjectId(uid)},
+            localMongo.db.users.update_one({"_id": ObjectId(uid)},
                                            {
                                                '$set': {'rating': u['rating']},
                                            }, upsert=False, )
 
 
 def articleIsRated(uid, aid):
-    u = localMongo.DB57.users.find_one({"_id": ObjectId(uid)})
+    u = localMongo.db.users.find_one({"_id": ObjectId(uid)})
     if u is not None:
         i = 0
         try:
@@ -52,9 +53,9 @@ def articleIsRated(uid, aid):
 
 
 def insertItemAndRating(uid, aid, action):
-    u = localMongo.DB57.users.find_one({"_id": ObjectId(uid)})
+    u = localMongo.db.users.find_one({"_id": ObjectId(uid)})
     if u is not None:
-        localMongo.DB57.users.update_one({"_id": ObjectId(uid)},
+        localMongo.db.users.update_one({"_id": ObjectId(uid)},
                                        {
                                            '$push': {'items': aid,
                                                      'rating': action},
@@ -75,7 +76,7 @@ def updateActionById(uid, aid, action):
 
 
 def numberOfOprations(uid):  # 1 for young user(oprations < 10) and 0 for old user
-    u = localMongo.DB57.users.find_one({"_id": ObjectId(uid)})
+    u = localMongo.db.users.find_one({"_id": ObjectId(uid)})
     try:
         if u['oprationNumber'] < 10:
             return 1
@@ -86,7 +87,7 @@ def numberOfOprations(uid):  # 1 for young user(oprations < 10) and 0 for old us
 
 
 def updateNumberOfOprations(uid):
-    localMongo.DB57.users.update_one({"_id": ObjectId(uid)},
+    localMongo.db.users.update_one({"_id": ObjectId(uid)},
                                    {
                                        '$inc': {'oprationNumber': 1},
                                    }, upsert=False, )
@@ -105,7 +106,7 @@ def schedule():
 
 
 def getFavoriteArticle(uid):
-    u = localMongo.DB57.users.find_one({"_id": ObjectId(uid)})
+    u = localMongo.db.users.find_one({"_id": ObjectId(uid)})
     key = None
     try:
         maxRating = max(u['rating'])
@@ -141,7 +142,7 @@ def task():
 @app.route('/opration/<uid>/<aid>/<action>', methods=['GET'])
 def opration(uid, aid, action):
     try:
-        user = localMongo.DB57.users
+        user = localMongo.db.users
         u = user.find_one({"_id": ObjectId(uid)})
     except:
         return "error"
@@ -155,7 +156,7 @@ def opration(uid, aid, action):
 def getData(uid):
     try:
         new = 0
-        user = localMongo.DB57.users
+        user = localMongo.db.users
         u = user.find_one({"_id": ObjectId(uid)})
         if u is None:
             new = 1
