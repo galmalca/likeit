@@ -154,4 +154,4 @@ def getData(uid):
 
 if __name__ == '__main__':
     schedule()
-    app.run(debug=True, port=PORT)
+    app.run(debug=True, port=PORT,host='0,0,0,0')
