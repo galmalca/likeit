@@ -1,5 +1,4 @@
 from bson import ObjectId
-import time
 from flask import Flask
 from pymongo import MongoClient
 from CBsystem import CbFiltering as cb
@@ -20,8 +19,6 @@ moranMongo = MongoClient('mongodb://galevgi:galgalgal@ds133981.mlab.com:33981/li
 localMongo = MongoClient('mongodb://project57:likeit1234@127.0.0.1:27017/DB57')
 articlesList = None
 
-dir_path = os.path.dirname(os.path.realpath(__file__))
-
 
 def raplaceRating(uid, aid, action):
     u = localMongo.DB57.users.find_one({"_id": ObjectId(uid)})
@@ -36,7 +33,6 @@ def raplaceRating(uid, aid, action):
                                                '$set': {'rating': u['rating']},
                                            }, upsert=False, )
 
-
 def articleIsRated(uid, aid):
     u = localMongo.DB57.users.find_one({"_id": ObjectId(uid)})
     if u is not None:
@@ -50,7 +46,6 @@ def articleIsRated(uid, aid):
         except:
             return -1
 
-
 def insertItemAndRating(uid, aid, action):
     u = localMongo.DB57.users.find_one({"_id": ObjectId(uid)})
     if u is not None:
@@ -60,7 +55,6 @@ def insertItemAndRating(uid, aid, action):
                                                      'rating': action},
                                        }, upsert=False, )
     return u
-
 
 def updateActionById(uid, aid, action):
     rating = articleIsRated(uid, aid)
@@ -73,7 +67,6 @@ def updateActionById(uid, aid, action):
             return "raplaceRating"
     return "not updated"
 
-
 def numberOfOprations(uid):  # 1 for young user(oprations < 10) and 0 for old user
     u = localMongo.DB57.users.find_one({"_id": ObjectId(uid)})
     try:
@@ -84,25 +77,21 @@ def numberOfOprations(uid):  # 1 for young user(oprations < 10) and 0 for old us
     except:
         return 0
 
-
 def updateNumberOfOprations(uid):
     localMongo.DB57.users.update_one({"_id": ObjectId(uid)},
                                    {
                                        '$inc': {'oprationNumber': 1},
                                    }, upsert=False, )
 
-
 def getAllArticles():
     user = moranMongo.likeitarticle.articles_db
     articles = list(user.find())
     return articles
 
-
 def schedule():
     global articlesList
     articlesList = getAllArticles()
     threading.Timer(TIMER, schedule).start()
-
 
 def getFavoriteArticle(uid):
     u = localMongo.DB57.users.find_one({"_id": ObjectId(uid)})
@@ -118,25 +107,11 @@ def getFavoriteArticle(uid):
     except:
         return "None"
 
-
 def getSpecificArticle(aid):
     for i in range(len(articlesList)):
         if articlesList[i]["_id"] == ObjectId(aid):
             return str(i)
     return None
-
-
-@app.route('/', methods=['GET'])
-def index():
-    return time.asctime(time.localtime(time.time()))
-
-
-@app.route('/task', methods=['GET'])
-def task():
-    # df = cb.openFile(dir_path + '/CBsystem/data/40k_movies_data.json')
-    df = articlesList
-    return str(cb.CbFiltering.algo(df[4], df))
-
 
 @app.route('/opration/<uid>/<aid>/<action>', methods=['GET'])
 def opration(uid, aid, action):
@@ -149,7 +124,6 @@ def opration(uid, aid, action):
         updateActionById(uid, aid, action)
         updateNumberOfOprations(uid)
         return 'done'
-
 
 @app.route('/getData/<uid>', methods=['GET'])
 def getData(uid):
@@ -177,7 +151,6 @@ def getData(uid):
         else:
             predict = mf.MatrixFactorization.livePrediction(predictedPath, articlesList, uid)
             return predict
-
 
 if __name__ == '__main__':
     schedule()
