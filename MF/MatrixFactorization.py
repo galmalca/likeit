@@ -41,7 +41,7 @@ class MatrixFactorization:
 
 
     @classmethod
-    def algo(cls, R, P, Q, K, steps=10, alpha=0.0002, beta=0.02):
+    def algo(cls, R, P, Q, K, steps=5000, alpha=0.0002, beta=0.02):
         Q = Q.T
         for step in range(steps):
             for i in range(len(R)):
