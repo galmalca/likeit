@@ -9,7 +9,7 @@ import threading
 import requests
 
 TIMER = 20 * 60
-PORT = 3002
+PORT = 5002
 HOST = "10.10.248.57"
 predictedPath = "predicted_ratings.dat"
 
