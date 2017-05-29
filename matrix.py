@@ -11,8 +11,8 @@ localMongo = MongoClient('localhost', 27017)
 
 def schedule():
     user = localMongo.db.users
-    articles = list(user.find())
-    mf.MatrixFactorization.loadFileToData(articles)
+    users = list(user.find())
+    mf.MatrixFactorization.loadFileToData(users)
     mf.MatrixFactorization.makeMatrix()
     threading.Timer(TIMER, schedule).start()
 

@@ -8,31 +8,41 @@ class MatrixFactorization:
         pass
 
     data = None
-    articles = None
+    users = None
+    dict = {}
 
     @classmethod
     def loadFileToData(cls, inputData):
-        cls.articles = inputData
+        cls.users = inputData
         # check number of movies
         dict = {}
         k = 0
-        for item in cls.articles:
+        for item in cls.users:
             for i in range(len(item['items'])):
                 if dict.get(item['items'][i]) is None:
                     dict[item['items'][i]] = k
                     k += 1
 
-                cls.data = np.zeros((len(cls.articles), len(dict)))
+                cls.data = np.zeros((len(cls.users), len(dict)))
 
         cls.data
         i = 0
-        for item in cls.articles:
+        print dict
+        for item in cls.users:
             for j in range(len(item['items'])):
                 cls.data[i, dict[item['items'][j]]] = item['rating'][j]
             i += 1
+        cls.dict = dict
+
+
 
     @classmethod
-    def algo(cls, R, P, Q, K, steps=5000, alpha=0.0002, beta=0.02):
+    def find_key(cls,input_dict, value):
+        return {k for k, v in input_dict.items() if v == value}
+
+
+    @classmethod
+    def algo(cls, R, P, Q, K, steps=10, alpha=0.0002, beta=0.02):
         Q = Q.T
         for step in range(steps):
             for i in range(len(R)):
@@ -81,17 +91,17 @@ class MatrixFactorization:
     def livePrediction(cls, pathToPredictedRatings, inputData, user_id):
         with open(pathToPredictedRatings, 'rb') as f:
             predicted_ratings = pickle.load(f)
-        articlesMatrix = inputData
+        articlesMatrix = inputData #the table of the articles(moran articles)
 
         from operator import itemgetter
-        for j in range(len(cls.articles)):
-            if cls.articles[j]["_id"] == user_id:
+        for j in range(len(cls.users)):
+            if cls.users[j]["_id"] == user_id:
                 break
-
-        user_ratings = predicted_ratings[j]
+        print cls.users
+        user_ratings = predicted_ratings[j] #the vector of the specific user in the predicted matrix
         i = 0
         for item in articlesMatrix:
-            item['rating'] = user_ratings[i]
+            item['rating'] = user_ratings[cls.find_key(cls.dict,i).pop()]
             i += 1
         sortedList = sorted(articlesMatrix, key=itemgetter('rating'), reverse=True)
 
