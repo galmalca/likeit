@@ -8,7 +8,7 @@ import threading
 import requests
 
 TIMER = 20 * 60
-PORT = 3002
+PORT = 5002
 HOST = "10.10.248.57"
 predictedPath = "predicted_ratings.dat"
 
@@ -140,13 +140,13 @@ def getData(uid):
                         "oprationNumber": 0,
                         "itmes":[],
                         "rating":[]})
-            req = requests.get('http://10.10.248.57:3003/getFiveArticles')
+            req = requests.get('http://127.0.0.1:5003/getFiveArticles')
             return json.dumps(req.json())
         elif numberOfOprations(uid):
             fav = getFavoriteArticle()
             article = getSpecificArticle(fav)
             results = cb.CbFiltering.algo(article, articlesList)
-            req = requests.get('http://10.10.248.57:3003/getFiveArticles')
+            req = requests.get('http://127.0.0.1:5003/getFiveArticles')
             results.extend(req.json())
             return json.dumps(results)
         else:
@@ -155,4 +155,4 @@ def getData(uid):
 
 if __name__ == '__main__':
     schedule()
-    app.run(debug=True, port=PORT,host=HOST)
+    app.run(debug=True, port=PORT)
