@@ -18,10 +18,10 @@ class MatrixFactorization:
         dict = {}
         k = 0
         print len(cls.users[1]['items'])
-        for item in cls.users:
-            for i in range(len(item['items'])):
-                if dict.get(item['items'][i]) is None:
-                    dict[item['items'][i]] = k
+        for user in cls.users:
+            for i in range(len(user['items'])):
+                if dict.get(user['items'][i]) is None:
+                    dict[user['items'][i]] = k
                     k += 1
 
                 cls.data = np.zeros((len(cls.users), len(dict)))
