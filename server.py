@@ -112,6 +112,10 @@ def getSpecificArticle(aid):
             return str(i)
     return None
 
+@app.route('/index', methods=['GET'])
+def index():
+    return "123"
+
 @app.route('/opration/<uid>/<aid>/<action>', methods=['GET'])
 def opration(uid, aid, action):
     try:
@@ -124,7 +128,7 @@ def opration(uid, aid, action):
         updateNumberOfOprations(uid)
         return 'done'
 
-@app.route('/getData/<uid>', methods=['GET'])
+@app.route('/getData/<uid>', methods=['GET','POST'])
 def getData(uid):
     try:
         new = 0
