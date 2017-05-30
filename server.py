@@ -133,11 +133,13 @@ def getData(uid):
         if u is None:
             new = 1
     except:
-        return "error"
+        return "error, db not connected / userid isn't an objectid"
     if new:
         if new:
             user.insert({"_id": ObjectId(uid),
-                         "oprationNumber": 0})
+                        "oprationNumber": 0,
+                        "itmes":[],
+                        "rating":[]})
             req = requests.get('http://127.0.0.1:5003/getFiveArticles')
             return json.dumps(req.json())
         elif numberOfOprations(uid):
