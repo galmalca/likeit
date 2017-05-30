@@ -3,7 +3,6 @@ from flask import Flask
 from pymongo import MongoClient
 from CBsystem import CbFiltering as cb
 from MF import MatrixFactorization as mf
-import os
 import json
 import threading
 import requests
@@ -154,4 +153,4 @@ def getData(uid):
 
 if __name__ == '__main__':
     schedule()
-    app.run(debug=True, port=PORT,host='0,0,0,0')
+    app.run(debug=True, port=PORT)
