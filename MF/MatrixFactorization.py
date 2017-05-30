@@ -17,7 +17,8 @@ class MatrixFactorization:
         # check number of movies
         dict = {}
         k = 0
-        for user in inputData:
+        for user in cls.users:
+            print user['items']
             for i in range(len(user['items'])):
                 if dict.get(user['items'][i]) is None:
                     dict[user['items'][i]] = k
