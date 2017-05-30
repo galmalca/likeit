@@ -140,13 +140,13 @@ def getData(uid):
                         "oprationNumber": 0,
                         "itmes":[],
                         "rating":[]})
-            req = requests.get('http://127.0.0.1:5003/getFiveArticles')
+            req = requests.get('http://10.10.248.57:3003/getFiveArticles')
             return json.dumps(req.json())
         elif numberOfOprations(uid):
             fav = getFavoriteArticle()
             article = getSpecificArticle(fav)
             results = cb.CbFiltering.algo(article, articlesList)
-            req = requests.get('http://127.0.0.1:5003/getFiveArticles')
+            req = requests.get('http://10.10.248.57:3003/getFiveArticles')
             results.extend(req.json())
             return json.dumps(results)
         else:
