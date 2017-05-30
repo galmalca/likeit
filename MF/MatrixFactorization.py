@@ -18,7 +18,6 @@ class MatrixFactorization:
         dict = {}
         k = 0
         for user in cls.users:
-            print user
             for i in range(len(user['items'])):
                 if dict.get(user['items'][i]) is None:
                     dict[user['items'][i]] = k
