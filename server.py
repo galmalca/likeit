@@ -139,23 +139,25 @@ def getData(uid):
     except:
         return "error, db not connected / userid isn't an objectid"
     if new:
-        if new:
-            user.insert({"_id": ObjectId(uid),
-                        "oprationNumber": 0,
-                        "itmes":[],
-                        "rating":[]})
-            req = requests.get('http://10.10.248.57:3003/getFiveArticles')
-            return json.dumps(req.json())
-        elif numberOfOprations(uid):
-            fav = getFavoriteArticle()
-            article = getSpecificArticle(fav)
-            results = cb.CbFiltering.algo(article, articlesList)
-            req = requests.get('http://10.10.248.57:3003/getFiveArticles')
-            results.extend(req.json())
-            return json.dumps(results)
-        else:
+        user.insert({"_id": ObjectId(uid),
+                    "oprationNumber": 0,
+                    "itmes":[],
+                    "rating":[]})
+        req = requests.get('http://10.10.248.57:3003/getFiveArticles')
+        return json.dumps(req.json())
+    elif numberOfOprations(uid):
+        fav = getFavoriteArticle()
+        article = getSpecificArticle(fav)
+        results = cb.CbFiltering.algo(article, articlesList)
+        req = requests.get('http://10.10.248.57:3003/getFiveArticles')
+        results.extend(req.json())
+        return json.dumps(results)
+    else:
+        try:
             predict = mf.MatrixFactorization.livePrediction(predictedPath, articlesList, uid)
             return predict
+        except:
+            return "error"
 
 if __name__ == '__main__':
     schedule()
