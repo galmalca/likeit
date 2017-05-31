@@ -141,7 +141,7 @@ def getData(uid):
     if new:
         user.insert({"_id": ObjectId(uid),
                     "oprationNumber": 0,
-                    "itmes":[],
+                    "items":[],
                     "rating":[]})
         req = requests.get('http://10.10.248.57:3003/getFiveArticles')
         return json.dumps(req.json())
