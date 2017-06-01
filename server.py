@@ -143,15 +143,18 @@ def getData(uid):
                     "oprationNumber": 0,
                     "items":[],
                     "rating":[]})
-        req = requests.get('http://10.10.248.57:3003/getFiveArticles')
-        return json.dumps(req.json())
+        req = requests.get('http://10.10.248.57:3003/getTenArticles')
+        return req.json()
     elif numberOfOprations(uid):
         fav = getFavoriteArticle(uid)
-        article = getSpecificArticle(fav)
+        try:article = getSpecificArticle(fav)
+        except:
+            req = requests.get('http://10.10.248.57:3003/getTenArticles')
+            return req.json()
         results = cb.CbFiltering.algo(article, articlesList)
         req = requests.get('http://10.10.248.57:3003/getFiveArticles')
         results.extend(req.json())
-        return json.dumps(results)
+        return results
     else:
         try:
             predict = mf.MatrixFactorization.livePrediction(predictedPath, articlesList, uid)
