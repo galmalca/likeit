@@ -28,9 +28,10 @@ def raplaceRating(uid, aid, action):
                 u['rating'][i] = action
             i += 1
             localMongo.DB57.users.update_one({"_id": ObjectId(uid)},
-                                           {
-                                               '$set': {'rating': u['rating']},
-                                           }, upsert=False, )
+                                             {
+                                                 '$set': {'rating': u['rating']},
+                                             }, upsert=False, )
+
 
 def articleIsRated(uid, aid):
     u = localMongo.DB57.users.find_one({"_id": ObjectId(uid)})
@@ -45,15 +46,17 @@ def articleIsRated(uid, aid):
         except:
             return -1
 
+
 def insertItemAndRating(uid, aid, action):
     u = localMongo.DB57.users.find_one({"_id": ObjectId(uid)})
     if u is not None:
         localMongo.DB57.users.update_one({"_id": ObjectId(uid)},
-                                       {
-                                           '$push': {'items': aid,
-                                                     'rating': action},
-                                       }, upsert=False, )
+                                         {
+                                             '$push': {'items': aid,
+                                                       'rating': action},
+                                         }, upsert=False, )
     return u
+
 
 def updateActionById(uid, aid, action):
     rating = articleIsRated(uid, aid)
@@ -66,6 +69,7 @@ def updateActionById(uid, aid, action):
             return "raplaceRating"
     return "not updated"
 
+
 def numberOfOprations(uid):  # 1 for young user(oprations < 10) and 0 for old user
     u = localMongo.DB57.users.find_one({"_id": ObjectId(uid)})
     try:
@@ -76,21 +80,25 @@ def numberOfOprations(uid):  # 1 for young user(oprations < 10) and 0 for old us
     except:
         return 0
 
+
 def updateNumberOfOprations(uid):
     localMongo.DB57.users.update_one({"_id": ObjectId(uid)},
-                                   {
-                                       '$inc': {'oprationNumber': 1},
-                                   }, upsert=False, )
+                                     {
+                                         '$inc': {'oprationNumber': 1},
+                                     }, upsert=False, )
+
 
 def getAllArticles():
     user = moranMongo.likeitarticle.articles_db
     articles = list(user.find())
     return articles
 
+
 def schedule():
     global articlesList
     articlesList = getAllArticles()
     threading.Timer(TIMER, schedule).start()
+
 
 def getFavoriteArticle(uid):
     u = localMongo.DB57.users.find_one({"_id": ObjectId(uid)})
@@ -106,15 +114,18 @@ def getFavoriteArticle(uid):
     except:
         return "None"
 
+
 def getSpecificArticle(aid):
     for i in range(len(articlesList)):
         if articlesList[i]["_id"] == ObjectId(aid):
             return str(i)
     return None
 
+
 @app.route('/index', methods=['GET'])
 def index():
     return "123"
+
 
 @app.route('/opration/<uid>/<aid>/<action>', methods=['GET'])
 def opration(uid, aid, action):
@@ -128,7 +139,8 @@ def opration(uid, aid, action):
         updateNumberOfOprations(uid)
         return 'done'
 
-@app.route('/getData/<uid>', methods=['GET','POST'])
+
+@app.route('/getData/<uid>', methods=['GET', 'POST'])
 def getData(uid):
     try:
         new = 0
@@ -140,14 +152,15 @@ def getData(uid):
         return "error, db not connected / userid isn't an objectid"
     if new:
         user.insert({"_id": ObjectId(uid),
-                    "oprationNumber": 0,
-                    "items":[],
-                    "rating":[]})
+                     "oprationNumber": 0,
+                     "items": [],
+                     "rating": []})
         req = requests.get('http://10.10.248.57:3003/getTenArticles')
         return json.dumps(req.json())
     elif numberOfOprations(uid):
         fav = getFavoriteArticle(uid)
-        try:article = getSpecificArticle(fav)
+        try:
+            article = getSpecificArticle(fav)
         except:
             req = requests.get('http://10.10.248.57:3003/getTenArticles')
             return json.dumps(req.json())
@@ -162,6 +175,7 @@ def getData(uid):
         except:
             return "error"
 
+
 if __name__ == '__main__':
     schedule()
-    app.run(debug=True, port=PORT,host=HOST)
+    app.run(debug=True, port=PORT, host=HOST)
