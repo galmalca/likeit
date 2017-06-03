@@ -1,4 +1,5 @@
 from bson import ObjectId
+from bson import json_util
 from flask import Flask
 from pymongo import MongoClient
 from CBsystem import CbFiltering as cb
@@ -133,7 +134,7 @@ def opration(uid, aid, action):
         user = localMongo.DB57.users
         u = user.find_one({"_id": ObjectId(uid)})
     except:
-        return "error"
+        return "error, user didnt found"
     if u is not None:
         updateActionById(uid, aid, action)
         updateNumberOfOprations(uid)
@@ -160,18 +161,18 @@ def getData(uid):
     elif numberOfOprations(uid):
         fav = getFavoriteArticle(uid)
         try:
-            article = articlesList[getSpecificArticle(fav)]
+            article = articlesList[int(getSpecificArticle(fav))]
         except:
             req = requests.get('http://10.10.248.57:3003/getTenArticles')
             return json.dumps(req.json())
         results = cb.CbFiltering.algo(article, articlesList)
         req = requests.get('http://10.10.248.57:3003/getFiveArticles')
         results.extend(req.json())
-        return json.dumps(results)
+        return json.dumps(results,indent=4, default=json_util.default)
     else:
         try:
             predict = mf.MatrixFactorization.livePrediction(predictedPath, articlesList, uid)
-            return predict
+            return json.dumps(predict,indent=4, default=json_util.default)
         except:
             return "error"
 
