@@ -16,7 +16,7 @@ class CbFiltering:
         list = []
         bestScore = 0
         for item in dataFrame:
-            if str(item['_id']) is not str(comparableItem['_id']):
+            if item['_id'] != comparableItem['_id']:
                 matchScore = 0
                 for j in range(len(comparableItem['categories'])):
                     for i in range(len(item['categories'])):

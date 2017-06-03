@@ -160,7 +160,7 @@ def getData(uid):
     elif numberOfOprations(uid):
         fav = getFavoriteArticle(uid)
         try:
-            article = getSpecificArticle(fav)
+            article = articlesList[getSpecificArticle(fav)]
         except:
             req = requests.get('http://10.10.248.57:3003/getTenArticles')
             return json.dumps(req.json())
