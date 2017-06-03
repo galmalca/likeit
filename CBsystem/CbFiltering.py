@@ -5,12 +5,14 @@ class CbFiltering:
     def __init__(self):
         pass
 
+    @classmethod
     def openFile(filePath):
         with open(filePath) as data_file:
             dataFrame = json.load(data_file)
         return (dataFrame)
 
-    def algo(comparableItem, dataFrame):
+    @classmethod
+    def algo(cls, comparableItem, dataFrame):
         list = []
         bestScore = 0
         for item in dataFrame:
@@ -28,6 +30,7 @@ class CbFiltering:
         list.reverse()
         return list[:10]
 
+    @classmethod
     def convert_file(filePath):
         with open(filePath) as data_file:
             data = json.load(data_file)
