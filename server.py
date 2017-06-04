@@ -186,11 +186,12 @@ def getData(uid):
         results = cb.CbFiltering.algo(article, articlesList)
         req = requests.get('http://10.10.248.57:3003/getFiveArticles')
         results.extend(req.json())
-        removeItemsFromBlackList(uid)
+        removeItemsFromBlackList(uid,results)
         return json.dumps(results,indent=4, default=json_util.default)
     else:
         try:
             predict = mf.MatrixFactorization.livePrediction(predictedPath, articlesList, uid)
+            removeItemsFromBlackList(uid, predict)
             return json.dumps(predict,indent=4, default=json_util.default)
         except:
             return "error"
