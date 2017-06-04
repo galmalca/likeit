@@ -36,11 +36,6 @@ class MatrixFactorization:
 
 
     @classmethod
-    def find_key(cls,input_dict, value):
-        return {k for k, v in input_dict.items() if v == value}
-
-
-    @classmethod
     def algo(cls, R, P, Q, K, steps=5000, alpha=0.0002, beta=0.02):
         Q = Q.T
         for step in range(steps):
@@ -99,7 +94,7 @@ class MatrixFactorization:
         user_ratings = predicted_ratings[j] #the vector of the specific user in the predicted matrix
         i = 0
         for item in articlesMatrix:
-            item['rating'] = user_ratings[cls.find_key(cls.dict,i).pop()]
+            item['rating'] = user_ratings[cls.dict.get(str(item['_id']),0)]
             i += 1
         sortedList = sorted(articlesMatrix, key=itemgetter('rating'), reverse=True)
 
