@@ -106,6 +106,8 @@ def getAllArticles():
 
 def getBlackList(uid):
     u = localMongo.DB57.users.find_one({"_id": ObjectId(uid)})
+    if u is None:
+        return None
     return u['BlackList']
 
 def schedule():
