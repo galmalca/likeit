@@ -115,7 +115,7 @@ def schedule():
     articlesList = getAllArticles()
     threading.Timer(TIMER, schedule).start()
 
-def removeItemsFromBlackList(uid,resultList):
+def insertItemsToBlackList(uid, resultList):
     try:
         list = getBlackList(uid)
         for item in list:
@@ -191,12 +191,13 @@ def getData(uid):
         results = cb.CbFiltering.algo(article, articlesList)
         req = requests.get('http://10.10.248.57:3003/getFiveArticles')
         results.extend(req.json())
-        removeItemsFromBlackList(uid,results)
+        insertItemsToBlackList(uid, results)
+        set(results)
         return json.dumps(results,indent=4, default=json_util.default)
     else:
         try:
             predict = mf.MatrixFactorization.livePrediction(predictedPath, articlesList, uid)
-            removeItemsFromBlackList(uid, predict)
+            insertItemsToBlackList(uid, predict)
             return json.dumps(predict,indent=4, default=json_util.default)
         except:
             return "error"
