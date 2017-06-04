@@ -116,10 +116,12 @@ def schedule():
     threading.Timer(TIMER, schedule).start()
 
 def removeItemsFromBlackList(uid,resultList):
-    list = getBlackList(uid)
-    for item in list:
-        if item in resultList:
-            resultList.remove(item)
+    try:
+        list = getBlackList(uid)
+        for item in list:
+            if item in resultList:
+                resultList.remove(item)
+    except:None
 
 def getFavoriteArticle(uid):
     u = localMongo.DB57.users.find_one({"_id": ObjectId(uid)})
