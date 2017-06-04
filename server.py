@@ -58,9 +58,19 @@ def insertItemAndRating(uid, aid, action):
                                          }, upsert=False, )
     return u
 
+def insertitemToBlackList(uid,aid):
+    u = localMongo.DB57.users.find_one({"_id": ObjectId(uid)})
+    if u is not None:
+        localMongo.DB57.users.update_one({"_id": ObjectId(uid)},
+                                         {
+                                             '$push': {'blackList': aid},
+                                         }, upsert=False, )
+    return u
 
 def updateActionById(uid, aid, action):
     rating = articleIsRated(uid, aid)
+    if action is 0:
+        insertitemToBlackList(uid,aid)
     if action > rating:
         if rating is -1:
             insertItemAndRating(uid, aid, action)
@@ -94,12 +104,20 @@ def getAllArticles():
     articles = list(user.find())
     return articles
 
+def getBlackList(uid):
+    u = localMongo.DB57.users.find_one({"_id": ObjectId(uid)})
+    return u['BlackList']
 
 def schedule():
     global articlesList
     articlesList = getAllArticles()
     threading.Timer(TIMER, schedule).start()
 
+def removeItemsFromBlackList(uid,resultList):
+    list = getBlackList(uid)
+    for item in list:
+        if item in resultList:
+            resultList.remove(item)
 
 def getFavoriteArticle(uid):
     u = localMongo.DB57.users.find_one({"_id": ObjectId(uid)})
@@ -168,6 +186,7 @@ def getData(uid):
         results = cb.CbFiltering.algo(article, articlesList)
         req = requests.get('http://10.10.248.57:3003/getFiveArticles')
         results.extend(req.json())
+        removeItemsFromBlackList(uid)
         return json.dumps(results,indent=4, default=json_util.default)
     else:
         try:
