@@ -192,7 +192,6 @@ def getData(uid):
         req = requests.get('http://10.10.248.57:3003/getFiveArticles')
         results.extend(req.json())
         insertItemsToBlackList(uid, results)
-        set(results)
         return json.dumps(results,indent=4, default=json_util.default)
     else:
         try:
