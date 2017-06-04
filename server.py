@@ -116,12 +116,10 @@ def schedule():
     threading.Timer(TIMER, schedule).start()
 
 def removeItemsFromBlackList(uid,resultList):
-    try:
-        list = getBlackList(uid)
-        for item in list:
-            if item in resultList:
-                resultList.remove(item)
-    except:None
+    list = getBlackList(uid)
+    for item in list:
+        if item in resultList:
+            resultList.remove(item)
 
 def getFavoriteArticle(uid):
     u = localMongo.DB57.users.find_one({"_id": ObjectId(uid)})
@@ -177,7 +175,8 @@ def getData(uid):
         user.insert({"_id": ObjectId(uid),
                      "oprationNumber": 0,
                      "items": [],
-                     "rating": []})
+                     "rating": [],
+                     "BlackList": []})
         req = requests.get('http://10.10.248.57:3003/getTenArticles')
         return json.dumps(req.json())
     elif numberOfOprations(uid):
