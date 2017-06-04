@@ -1,4 +1,5 @@
 import json
+import random
 
 
 class CbFiltering:
@@ -27,8 +28,8 @@ class CbFiltering:
                         bestScore = matchScore
                     if matchScore > 1 and len(item['categories']) <= len(comparableItem['categories']) + 2:
                         list.append(item)
-        list.reverse()
-        return list[:10]
+        random.shuffle(list)
+        return list[:20]
 
     @classmethod
     def convert_file(filePath):
