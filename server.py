@@ -197,6 +197,9 @@ def getData(uid):
         return json.dumps(res,indent=4, default=json_util.default)
     else:
         try:
+            user = localMongo.DB57.users
+            users = list(user.find())
+            mf.MatrixFactorization.loadFileToData(users)
             predict = mf.MatrixFactorization.livePrediction(predictedPath, articlesList, uid)
             checkIfItemsInBlackList(uid, predict)
             return json.dumps(predict,indent=4, default=json_util.default)
