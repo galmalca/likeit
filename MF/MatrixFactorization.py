@@ -98,4 +98,4 @@ class MatrixFactorization:
             i += 1
         sortedList = sorted(articlesMatrix, key=itemgetter('rating'), reverse=True)
 
-        return set(sortedList[:20])
+        return sortedList[:20]
