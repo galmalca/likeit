@@ -63,13 +63,13 @@ def insertitemToBlackList(uid,aid):
     if u is not None:
         localMongo.DB57.users.update_one({"_id": ObjectId(uid)},
                                          {
-                                             '$push': {'BlackList': aid},
+                                             '$push': {'blackList': aid},
                                          }, upsert=False, )
     return u
 
 def updateActionById(uid, aid, action):
     rating = articleIsRated(uid, aid)
-    if int(action) is 0:
+    if action is 0:
         insertitemToBlackList(uid,aid)
     if action > rating:
         if rating is -1:
@@ -99,6 +99,7 @@ def updateNumberOfOprations(uid):
                                      }, upsert=False, )
 
 
+
 def getAllArticles():
     user = moranMongo.likeitarticle.articles_db
     articles = list(user.find())
@@ -110,13 +111,12 @@ def getBlackList(uid):
         return None
     return u['BlackList']
 
-
 def schedule():
     global articlesList
     articlesList = getAllArticles()
     threading.Timer(TIMER, schedule).start()
 
-def removeItemsToBlackList(uid, resultList):
+def checkIfItemsInBlackList(uid, resultList):
     try:
         list = getBlackList(uid)
         for item in list:
@@ -192,13 +192,13 @@ def getData(uid):
         results = cb.CbFiltering.algo(article, articlesList)
         req = requests.get('http://10.10.248.57:3003/getFiveArticles')
         results.extend(req.json())
-        res = list(set(results))
-        removeItemsToBlackList(uid, res)
-        return json.dumps(results,indent=4, default=json_util.default)
+        checkIfItemsInBlackList(uid, results)
+        res = {each['url']: each for each in results}.values()
+        return json.dumps(res,indent=4, default=json_util.default)
     else:
         try:
             predict = mf.MatrixFactorization.livePrediction(predictedPath, articlesList, uid)
-            removeItemsToBlackList(uid, predict)
+            checkIfItemsInBlackList(uid, predict)
             return json.dumps(predict,indent=4, default=json_util.default)
         except:
             return "error"
