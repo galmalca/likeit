@@ -94,7 +94,9 @@ class MatrixFactorization:
         user_ratings = predicted_ratings[j] #the vector of the specific user in the predicted matrix
         i = 0
         for item in articlesMatrix:
-            item['rating'] = user_ratings[cls.dict.get(str(item['_id']),0)]
+            try:
+                item['rating'] = user_ratings[cls.dict.get(str(item['_id']),0)]
+            except:None
             i += 1
         sortedList = sorted(articlesMatrix, key=itemgetter('rating'), reverse=True)
 
