@@ -89,7 +89,7 @@ class MatrixFactorization:
         for j in range(len(cls.users)):
             if cls.users[j]["_id"] == user_id:
                 break
-        user_ratings = predicted_ratings[j] #the vector of the specific user in the predicted matrix
+        user_ratings = predicted_ratings[j-1] #the vector of the specific user in the predicted matrix
         i = 0
         for item in articlesMatrix:
             try:
