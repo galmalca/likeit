@@ -23,9 +23,7 @@ class MatrixFactorization:
                     dict[user['items'][i]] = k
                     k += 1
 
-                cls.data = np.zeros((len(cls.users), len(dict)))
-
-        cls.data
+        cls.data = np.zeros((len(cls.users), len(dict)))
         i = 0
         for item in cls.users:
             for j in range(len(item['items'])):
