@@ -26,7 +26,7 @@ class CbFiltering:
                     if matchScore >= bestScore:
                         bestMatch = item
                         bestScore = matchScore
-                    if matchScore > 1 and len(item['categories']) <= len(comparableItem['categories']) + 2:
+                    if matchScore > 1 and len(item['categories']) <= len(comparableItem['categories']) + 4:
                         list.append(item)
         random.shuffle(list)
         return list[:20]
