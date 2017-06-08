@@ -192,8 +192,8 @@ def getData(uid):
         results = cb.CbFiltering.algo(article, articlesList)
         req = requests.get('http://10.10.248.57:3003/getFiveArticles')
         results.extend(req.json())
-        checkIfItemsInBlackList(uid, results)
         res = {each['url']: each for each in results}.values()
+        checkIfItemsInBlackList(uid, res)
         return json.dumps(res,indent=4, default=json_util.default)
     else:
         user = localMongo.DB57.users
