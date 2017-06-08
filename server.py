@@ -15,7 +15,7 @@ predictedPath = "predicted_ratings.dat"
 
 app = Flask(__name__)
 
-moranMongo = MongoClient('mongodb://galevgi:galgalgal@ds133981.mlab.com:33981/likeitarticle')
+moranMongo = MongoClient('mongodb://project57:likeit1234@127.0.0.1:27017/DB57')
 localMongo = MongoClient('mongodb://project57:likeit1234@127.0.0.1:27017/DB57')
 articlesList = None
 
@@ -101,7 +101,7 @@ def updateNumberOfOprations(uid):
 
 
 def getAllArticles():
-    user = moranMongo.likeitarticle.articles_db
+    user = moranMongo.DB57.articles_db
     articles = list(user.find())
     return articles
 
